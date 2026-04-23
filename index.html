@@ -1,1 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geometry Dash Demonlist</title>
+  <style>
+    :root {
+      --bg-1: #09090f;
+      --bg-2: #11111a;
+      --panel: rgba(255, 255, 255, 0.06);
+      --panel-2: rgba(255, 255, 255, 0.09);
+      --border: rgba(255, 255, 255, 0.12);
+      --text: #f5f7ff;
+      --muted: #b7bdd3;
+      --accent: #d946ef;
+      --accent-2: #22d3ee;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, #1b1331 0%, #0b1020 35%, #06070d 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1200px, calc(100% - 32px));
+      margin: 24px auto 48px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.35fr 0.9fr;
+      gap: 24px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(217, 70, 239, 0.12);
+      border: 1px solid rgba(217, 70, 239, 0.28);
+      color: #f5c7ff;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 48px;
+      line-height: 1.05;
+    }
+
+    .accent {
+      color: var(--accent);
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 17px;
+      max-width: 700px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button,
+    .button {
+      border: 0;
+      border-radius: 18px;
+      padding: 12px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: var(--panel-2);
+      color: var(--text);
+      transition: 0.2s ease;
+    }
+
+    button:hover,
+    .button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .secondary {
+      background: rgba(255,255,255,0.09);
+      border: 1px solid var(--border);
+    }
+
+    .danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .warning {
+      background: var(--warning);
+      color: #121212;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: rgba(0,0,0,0.22);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 18px;
+    }
+
+    .stat-card .label {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 34px;
+      font-weight: 900;
+    }
+
+    .toolbar {
+      margin: 24px 0 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      background: rgba(0,0,0,0.22);
+      color: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 15px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    .results-count {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .level-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .level-card {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .thumb {
+      position: relative;
+      min-height: 190px;
+      background: #0f172a;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .rank-badge {
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      background: rgba(0,0,0,0.72);
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-weight: 900;
+      font-size: 20px;
+    }
+
+    .legacy-badge {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      background: var(--warning);
+      color: #111;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .level-content {
+      padding: 20px;
+    }
+
+    .level-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .level-title {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .badge.diff {
+      background: rgba(217, 70, 239, 0.15);
+      color: #f0abfc;
+    }
+
+    .badge.points {
+      background: rgba(34, 211, 238, 0.14);
+      color: #a5f3fc;
+    }
+
+    .meta,
+    .desc {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .mini-box {
+      background: rgba(0,0,0,0.22);
+      border-radius: 18px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .mini-box .mini-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .mini-box .mini-value {
+      margin-top: 6px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      font-size: 24px;
+    }
+
+    .panel p,
+    .panel li {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      border-radius: 24px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: min(900px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      background: #0b0e18;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-box h2 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .check-row input {
+      width: auto;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .file-input {
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-input input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .error {
+      color: #fca5a5;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .panel-grid,
+      .level-card {
+        grid-template-columns: 1fr;
+      }
+
+      .stats,
+      .mini-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div>
+        <div class="pill">Community Demonlist</div>
+        <h1>Build your own <span class="accent">Geometry Dash Demonlist</span></h1>
+        <p>
+          A single-file HTML, CSS, and JavaScript demonlist inspired by Pointercrate styling. You can add, edit,
+          delete, reorder, search, import, and export levels. Everything saves in your browser automatically.
+        </p>
+        <div class="button-row">
+          <button id="toggleAdminBtn" class="primary">Open Admin Mode</button>
+          <button id="addLevelBtn" class="secondary">Add Level</button>
+          <button id="exportBtn" class="secondary">Export Data</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">Total Levels</div>
+          <div class="value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Main List</div>
+          <div class="value" id="statMain">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Legacy</div>
+          <div class="value" id="statLegacy">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Avg Points</div>
+          <div class="value" id="statAvg">0</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="search-wrap">
+        <input id="searchInput" type="text" placeholder="Search by level, creator, verifier, song..." />
+      </div>
+      <div class="results-count" id="resultsCount">Showing 0 results</div>
+    </section>
+
+    <section id="levelList" class="level-list"></section>
+
+    <div id="emptyState" class="empty-state hidden">No levels matched your search.</div>
+
+    <section class="panel-grid">
+      <div class="panel">
+        <h2>Admin Controls</h2>
+        <p>
+          Turn on admin mode to show edit buttons on each level card. Changes are stored in your browser using localStorage.
+        </p>
+        <div class="button-row">
+          <button id="toggleAdminBtn2" class="primary">Enable Admin Mode</button>
+          <button id="addLevelBtn2" class="secondary">Create Level</button>
+          <button id="resetBtn" class="danger">Reset Demo Data</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Import / Export</h2>
+        <p>Import a JSON file to replace the list. Export your list first so you always have a backup.</p>
+        <div class="button-row">
+          <label class="button secondary file-input">
+            Choose JSON File
+            <input id="importInput" type="file" accept="application/json" />
+          </label>
+          <button id="exportBtn2" class="secondary">Export Backup</button>
+        </div>
+        <div id="importError" class="error"></div>
+      </div>
+    </section>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-box">
+      <h2 id="modalTitle">Add Level</h2>
+      <div class="form-grid">
+        <div>
+          <label for="fName">Level Name</label>
+          <input id="fName" type="text" />
+        </div>
+        <div>
+          <label for="fRank">Rank</label>
+          <input id="fRank" type="number" />
+        </div>
+
+        <div>
+          <label for="fCreator">Creator</label>
+          <input id="fCreator" type="text" />
+        </div>
+        <div>
+          <label for="fVerifier">Verifier</label>
+          <input id="fVerifier" type="text" />
+        </div>
+
+        <div>
+          <label for="fDifficulty">Difficulty</label>
+          <select id="fDifficulty">
+            <option>Easy Demon</option>
+            <option>Medium Demon</option>
+            <option>Hard Demon</option>
+            <option>Insane Demon</option>
+            <option selected>Extreme Demon</option>
+          </select>
+        </div>
+        <div>
+          <label for="fPoints">Points</label>
+          <input id="fPoints" type="number" />
+        </div>
+
+        <div>
+          <label for="fSong">Song</label>
+          <input id="fSong" type="text" />
+        </div>
+        <div>
+          <label for="fRecord">Record Requirement (%)</label>
+          <input id="fRecord" type="number" />
+        </div>
+
+        <div class="full">
+          <label for="fVideo">Video URL</label>
+          <input id="fVideo" type="text" />
+        </div>
+
+        <div class="full">
+          <label for="fThumb">Thumbnail URL</label>
+          <input id="fThumb" type="text" />
+        </div>
+
+        <div class="full">
+          <label for="fDescription">Description</label>
+          <textarea id="fDescription"></textarea>
+        </div>
+
+        <div class="full check-row">
+          <input id="fLegacy" type="checkbox" />
+          <label for="fLegacy" style="margin: 0;">Mark as legacy level</label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="cancelBtn" class="secondary">Cancel</button>
+        <button id="saveBtn" class="primary">Save Level</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_LEVELS = [
+      {
+        id: 1,
+        rank: 1,
+        name: "Acheron",
+        creator: "Ryamu",
+        verifier: "zoink",
+        difficulty: "Extreme Demon",
+        points: 150,
+        video: "https://www.youtube.com/",
+        thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80",
+        song: "At the Speed of Light",
+        description: "A brutal top 1 extreme demon with precise wave, ship, and timing-heavy sections.",
+        legacy: false,
+        requiresRecord: 100
+      },
+      {
+        id: 2,
+        rank: 2,
+        name: "Silent Clubstep",
+        creator: "Sailent",
+        verifier: "Paqoe",
+        difficulty: "Extreme Demon",
+        points: 145,
+        video: "https://www.youtube.com/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+        song: "Clubstep Remix",
+        description: "Legendary impossible-level history turned verified extreme demon.",
+        legacy: false,
+        requiresRecord: 100
+      },
+      {
+        id: 3,
+        rank: 3,
+        name: "Tidal Wave",
+        creator: "OniLink",
+        verifier: "zoink",
+        difficulty: "Extreme Demon",
+        points: 140,
+        video: "https://www.youtube.com/",
+        thumbnail: "https://images.unsplash.com/photo-1511882150382-421056c89033?auto=format&fit=crop&w=1200&q=80",
+        song: "Shiawase VIP",
+        description: "Fast-paced gameplay with long wave sections and high mechanical demand.",
+        legacy: false,
+        requiresRecord: 100
+      },
+      {
+        id: 4,
+        rank: 4,
+        name: "Kyouki",
+        creator: "Demishio",
+        verifier: "Trick",
+        difficulty: "Extreme Demon",
+        points: 132,
+        video: "https://www.youtube.com/",
+        thumbnail: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&q=80",
+        song: "Bossfight Track",
+        description: "Intense visual style with difficult transitions and consistency checks.",
+        legacy: false,
+        requiresRecord: 100
+      },
+      {
+        id: 5,
+        rank: 5,
+        name: "Slaughterhouse",
+        creator: "Icecave",
+        verifier: "spaceuk",
+        difficulty: "Extreme Demon",
+        points: 125,
+        video: "https://www.youtube.com/",
+        thumbnail: "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&w=1200&q=80",
+        song: "Lost",
+        description: "One of the most iconic modern top demons with extreme straight-fly and wave.",
+        legacy: true,
+        requiresRecord: 100
+      }
+    ];
+
+    let levels = loadLevels();
+    let adminMode = false;
+    let editingId = null;
+
+    const levelList = document.getElementById('levelList');
+    const searchInput = document.getElementById('searchInput');
+    const resultsCount = document.getElementById('resultsCount');
+    const emptyState = document.getElementById('emptyState');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const importError = document.getElementById('importError');
+
+    const formEls = {
+      name: document.getElementById('fName'),
+      rank: document.getElementById('fRank'),
+      creator: document.getElementById('fCreator'),
+      verifier: document.getElementById('fVerifier'),
+      difficulty: document.getElementById('fDifficulty'),
+      points: document.getElementById('fPoints'),
+      song: document.getElementById('fSong'),
+      requiresRecord: document.getElementById('fRecord'),
+      video: document.getElementById('fVideo'),
+      thumbnail: document.getElementById('fThumb'),
+      description: document.getElementById('fDescription'),
+      legacy: document.getElementById('fLegacy')
+    };
+
+    function loadLevels() {
+      try {
+        const saved = localStorage.getItem('gd-demonlist-data-html');
+        if (!saved) return normalizeRanks([...DEFAULT_LEVELS]);
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return normalizeRanks([...DEFAULT_LEVELS]);
+        return normalizeRanks(parsed);
+      } catch {
+        return normalizeRanks([...DEFAULT_LEVELS]);
+      }
+    }
+
+    function saveLevels() {
+      localStorage.setItem('gd-demonlist-data-html', JSON.stringify(levels));
+    }
+
+    function normalizeRanks(arr) {
+      return [...arr]
+        .sort((a, b) => Number(a.rank) - Number(b.rank))
+        .map((level, index) => ({ ...level, rank: index + 1 }));
+    }
+
+    function getFilteredLevels() {
+      const q = searchInput.value.trim().toLowerCase();
+      const normalized = normalizeRanks(levels);
+      if (!q) return normalized;
+
+      return normalized.filter(level => {
+        const fields = [
+          level.name,
+          level.creator,
+          level.verifier,
+          level.song,
+          level.description,
+          level.difficulty
+        ].filter(Boolean);
+
+        return fields.some(v => String(v).toLowerCase().includes(q));
+      });
+    }
+
+    function updateStats() {
+      const normalized = normalizeRanks(levels);
+      const total = normalized.length;
+      const legacy = normalized.filter(l => l.legacy).length;
+      const main = total - legacy;
+      const avg = total ? Math.round(normalized.reduce((sum, l) => sum + Number(l.points || 0), 0) / total) : 0;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statMain').textContent = main;
+      document.getElementById('statLegacy').textContent = legacy;
+      document.getElementById('statAvg').textContent = avg;
+    }
+
+    function renderLevels() {
+      const filtered = getFilteredLevels();
+      resultsCount.textContent = `Showing ${filtered.length} result${filtered.length === 1 ? '' : 's'}`;
+      emptyState.classList.toggle('hidden', filtered.length !== 0);
+      levelList.innerHTML = '';
+
+      filtered.forEach((level, index) => {
+        const card = document.createElement('article');
+        card.className = 'level-card';
+
+        const adminButtons = adminMode ? `
+          <button class="secondary" onclick="moveLevelByFilteredIndex(${index}, -1)">↑</button>
+          <button class="secondary" onclick="moveLevelByFilteredIndex(${index}, 1)">↓</button>
+          <button class="secondary" onclick="openEditModal(${level.id})">Edit</button>
+          <button class="danger" onclick="deleteLevel(${level.id})">Delete</button>
+        ` : '';
+
+        card.innerHTML = `
+          <div class="thumb">
+            <img src="${escapeHtml(level.thumbnail || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80')}" alt="${escapeHtml(level.name)}">
+            <div class="rank-badge">#${level.rank}</div>
+            ${level.legacy ? '<div class="legacy-badge">Legacy</div>' : ''}
+          </div>
+          <div class="level-content">
+            <div class="level-top">
+              <div>
+                <h3 class="level-title">${escapeHtml(level.name)}</h3>
+                <div class="badges">
+                  <span class="badge diff">${escapeHtml(level.difficulty)}</span>
+                  <span class="badge points">${escapeHtml(String(level.points))} pts</span>
+                </div>
+                <div class="meta">
+                  By <strong>${escapeHtml(level.creator || 'Unknown')}</strong>
+                  ${level.verifier ? ` • Verified by <strong>${escapeHtml(level.verifier)}</strong>` : ''}
+                  ${level.song ? ` • Song: <strong>${escapeHtml(level.song)}</strong>` : ''}
+                </div>
+                <p class="desc">${escapeHtml(level.description || '')}</p>
+              </div>
+              <div class="card-actions">
+                ${level.video ? `<a class="button primary" href="${escapeHtml(level.video)}" target="_blank" rel="noreferrer">Watch</a>` : ''}
+                ${adminButtons}
+              </div>
+            </div>
+            <div class="mini-grid">
+              <div class="mini-box">
+                <div class="mini-label">List Requirement</div>
+                <div class="mini-value">${escapeHtml(String(level.requiresRecord || 100))}% or better</div>
+              </div>
+              <div class="mini-box">
+                <div class="mini-label">Position</div>
+                <div class="mini-value">Top ${level.rank}</div>
+              </div>
+              <div class="mini-box">
+                <div class="mini-label">Status</div>
+                <div class="mini-value">${level.legacy ? 'Moved to legacy' : 'Main list'}</div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        levelList.appendChild(card);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function toggleAdminMode() {
+      adminMode = !adminMode;
+      document.getElementById('toggleAdminBtn').textContent = adminMode ? 'Exit Admin Mode' : 'Open Admin Mode';
+      document.getElementById('toggleAdminBtn2').textContent = adminMode ? 'Disable Admin Mode' : 'Enable Admin Mode';
+      renderLevels();
+    }
+
+    function openAddModal() {
+      editingId = null;
+      modalTitle.textContent = 'Add Level';
+      formEls.name.value = '';
+      formEls.rank.value = levels.length + 1;
+      formEls.creator.value = '';
+      formEls.verifier.value = '';
+      formEls.difficulty.value = 'Extreme Demon';
+      formEls.points.value = 100;
+      formEls.song.value = '';
+      formEls.requiresRecord.value = 100;
+      formEls.video.value = '';
+      formEls.thumbnail.value = '';
+      formEls.description.value = '';
+      formEls.legacy.checked = false;
+      modal.classList.add('show');
+    }
+
+    function openEditModal(id) {
+      const level = levels.find(l => l.id === id);
+      if (!level) return;
+      editingId = id;
+      modalTitle.textContent = `Edit ${level.name}`;
+      formEls.name.value = level.name || '';
+      formEls.rank.value = level.rank || 1;
+      formEls.creator.value = level.creator || '';
+      formEls.verifier.value = level.verifier || '';
+      formEls.difficulty.value = level.difficulty || 'Extreme Demon';
+      formEls.points.value = level.points || 0;
+      formEls.song.value = level.song || '';
+      formEls.requiresRecord.value = level.requiresRecord || 100;
+      formEls.video.value = level.video || '';
+      formEls.thumbnail.value = level.thumbnail || '';
+      formEls.description.value = level.description || '';
+      formEls.legacy.checked = !!level.legacy;
+      modal.classList.add('show');
+    }
+
+    window.openEditModal = openEditModal;
+
+    function closeModal() {
+      modal.classList.remove('show');
+    }
+
+    function saveLevel() {
+      const name = formEls.name.value.trim();
+      if (!name) {
+        alert('Level name is required.');
+        return;
+      }
+
+      const payload = {
+        id: editingId ?? Date.now(),
+        rank: Number(formEls.rank.value) || 1,
+        name,
+        creator: formEls.creator.value.trim(),
+        verifier: formEls.verifier.value.trim(),
+        difficulty: formEls.difficulty.value,
+        points: Number(formEls.points.value) || 0,
+        video: formEls.video.value.trim(),
+        thumbnail: formEls.thumbnail.value.trim(),
+        song: formEls.song.value.trim(),
+        description: formEls.description.value.trim(),
+        legacy: formEls.legacy.checked,
+        requiresRecord: Number(formEls.requiresRecord.value) || 100
+      };
+
+      if (editingId == null) {
+        levels.push(payload);
+      } else {
+        levels = levels.map(level => level.id === editingId ? payload : level);
+      }
+
+      levels = normalizeRanks(levels);
+      saveLevels();
+      updateStats();
+      renderLevels();
+      closeModal();
+    }
+
+    function deleteLevel(id) {
+      if (!confirm('Delete this level?')) return;
+      levels = normalizeRanks(levels.filter(level => level.id !== id));
+      saveLevels();
+      updateStats();
+      renderLevels();
+    }
+
+    window.deleteLevel = deleteLevel;
+
+    function moveLevelByFilteredIndex(filteredIndex, direction) {
+      const filtered = getFilteredLevels();
+      const current = filtered[filteredIndex];
+      const target = filtered[filteredIndex + direction];
+      if (!current || !target) return;
+
+      const all = normalizeRanks(levels);
+      const i = all.findIndex(l => l.id === current.id);
+      const j = all.findIndex(l => l.id === target.id);
+      if (i === -1 || j === -1) return;
+
+      [all[i], all[j]] = [all[j], all[i]];
+      levels = normalizeRanks(all);
+      saveLevels();
+      updateStats();
+      renderLevels();
+    }
+
+    window.moveLevelByFilteredIndex = moveLevelByFilteredIndex;
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(levels, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'demonlist-data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function resetData() {
+      if (!confirm('Reset to demo data?')) return;
+      levels = normalizeRanks([...DEFAULT_LEVELS]);
+      saveLevels();
+      updateStats();
+      renderLevels();
+      importError.textContent = '';
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const parsed = JSON.parse(String(e.target.result || '[]'));
+          if (!Array.isArray(parsed)) throw new Error('Invalid JSON');
+          levels = normalizeRanks(parsed);
+          saveLevels();
+          updateStats();
+          renderLevels();
+          importError.textContent = '';
+        } catch {
+          importError.textContent = 'Import failed. Make sure your JSON file is a valid array of level objects.';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    document.getElementById('toggleAdminBtn').addEventListener('click', toggleAdminMode);
+    document.getElementById('toggleAdminBtn2').addEventListener('click', toggleAdminMode);
+    document.getElementById('addLevelBtn').addEventListener('click', openAddModal);
+    document.getElementById('addLevelBtn2').addEventListener('click', openAddModal);
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    document.getElementById('saveBtn').addEventListener('click', saveLevel);
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('exportBtn2').addEventListener('click', exportData);
+    document.getElementById('resetBtn').addEventListener('click', resetData);
+    document.getElementById('importInput').addEventListener('change', importData);
+    searchInput.addEventListener('input', renderLevels);
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeModal();
+    });
+
+    updateStats();
+    renderLevels();
+  </script>
+</body>
+</html>
 
